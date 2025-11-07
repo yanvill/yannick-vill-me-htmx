@@ -1,0 +1,55 @@
+{#
+Base template for all pages of the application.
+
+Blocks:
+- title: For setting the page title.
+- body: For the body of the page, required.
+
+Utility containers:
+- dialog-container: The HTMX target container for dialogs.
+#}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{% block title %}App{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='favicon-32.png') }}">
+
+    <link rel="stylesheet" href="{{ url_for('static', path='tailwind.css') }}" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" type="text/css" />
+
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+    <script src="https://unpkg.com/htmx-ext-json-enc@2.0.0/json-enc.js"></script>
+    <script src="https://unpkg.com/htmx-ext-sse@2.0.0/sse.js"></script>
+</head>
+
+<body>
+    {% block body required %}{% endblock %}
+
+    {% block dialog %}{% endblock %}
+    <div id="version"></div>
+    <script>
+    (function(){
+        const socket = new WebSocket("ws://" + window.location.host + "/keep-alive");
+
+        // Listen for messages
+        socket.addEventListener("close", function () {
+            console.log("Reloading page due to server update");
+            window.location.reload();
+        });
+        socket.addEventListener("open", function () {
+            console.log("Connected to keep-alive socket");
+        });
+        socket.addEventListener("error", function (error) {
+            console.error("KeepAlive error:", error);
+            window.location.reload();
+        });
+    })();
+    </script>
+</body>
+
+</html>
